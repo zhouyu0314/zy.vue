@@ -24,36 +24,7 @@
                  @contextmenu.prevent.stop="rightClick(item,$event)"
                  @mouseover="mouseOver(item,$event)"
                  @mouseleave="mouseLeave(item,$event)">
-                <img src="../../../assets/directory.png" height="60" width="60" v-if="item.isDirectory==1"
-                     class="div-img"/>
-                <img src="../../../assets/img.png" height="60" width="60" v-else-if="item.isDirectory==2"
-                     class="div-img"/>
-                <img src="../../../assets/html.png" height="60" width="60" v-else-if="item.isDirectory==3"
-                     class="div-img"/>
-                <img src="../../../assets/rar.png" height="60" width="60" v-else-if="item.isDirectory==4"
-                     class="div-img"/>
-                <img src="../../../assets/txt.png" height="60" width="60" v-else-if="item.isDirectory==5"
-                     class="div-img"/>
-                <img src="../../../assets/doc.png" height="60" width="60" v-else-if="item.isDirectory==6"
-                     class="div-img"/>
-                <img src="../../../assets/xls.png" height="60" width="60" v-else-if="item.isDirectory==7"
-                     class="div-img"/>
-                <img src="../../../assets/ppt.png" height="60" width="60" v-else-if="item.isDirectory==8"
-                     class="div-img"/>
-                <img src="../../../assets/music.png" height="60" width="60" v-else-if="item.isDirectory==9"
-                     class="div-img"/>
-                <img src="../../../assets/movie.png" height="60" width="60" v-else-if="item.isDirectory==10"
-                     class="div-img"/>
-                <img src="../../../assets/exe.png" height="60" width="60" v-else-if="item.isDirectory==11"
-                     class="div-img"/>
-                <img src="../../../assets/js.png" height="60" width="60" v-else-if="item.isDirectory==12"
-                     class="div-img"/>
-                <img src="../../../assets/vue.png" height="60" width="60" v-else-if="item.isDirectory==13"
-                     class="div-img"/>
-                <img src="../../../assets/java.png" height="60" width="60" v-else-if="item.isDirectory==14"
-                     class="div-img"/>
-
-                <img src="../../../assets/blank.png" height="60" width="60" v-else class="div-img"/>
+                <img :src="require('../../../assets/'+item.isDirectory+'.png')" height="60" width="60" class="div-img"/>
                 <el-tooltip class="item" effect="dark" :content="item.name" placement="bottom">
                     <p class="img-div-p" v-text="item.name" style="margin: 5px 0 5px 0"></p>
                 </el-tooltip>
@@ -83,42 +54,27 @@
 
 
         <!--文件详细信息弹框-->
-        <el-dialog title="详细信息" :visible.sync="fileInfoVisible" width="20%" :before-close="handleFileInfoClose"
+        <el-dialog title="详细信息" :visible.sync="fileInfoVisible" width="400px" :before-close="handleFileInfoClose"
                    :close-on-click-modal="false">
-            <!--                <img src="../../../assets/directory.png" height="20" width="20" v-if="currentItem.isDirectory==1" class="div-img"/>-->
-            <!--                <img src="../../../assets/img.png" height="20" width="20" v-else-if="currentItem.isDirectory==2" class="div-img"/>-->
-            <!--                <img src="../../../assets/html.png" height="20" width="60" v-else-if="currentItem.isDirectory==3" class="div-img"/>-->
-            <!--                <img src="../../../assets/rar.png" height="20" width="20" v-else-if="currentItem.isDirectory==4" class="div-img"/>-->
-            <!--                <img src="../../../assets/txt.png" height="20" width="20" v-else-if="currentItem.isDirectory==5" class="div-img"/>-->
-            <!--                <img src="../../../assets/doc.png" height="20" width="20" v-else-if="currentItem.isDirectory==6" class="div-img"/>-->
-            <!--                <img src="../../../assets/xls.png" height="20" width="20" v-else-if="currentItem.isDirectory==7" class="div-img"/>-->
-            <!--                <img src="../../../assets/ppt.png" height="20" width="20" v-else-if="currentItem.isDirectory==8" class="div-img"/>-->
-            <!--                <img src="../../../assets/music.png" height="20" width="20" v-else-if="currentItem.isDirectory==9" class="div-img"/>-->
-            <!--                <img src="../../../assets/movie.png" height="20" width="20" v-else-if="currentItem.isDirectory==10" class="div-img"/>-->
-            <!--                <img src="../../../assets/exe.png" height="20" width="20" v-else-if="currentItem.isDirectory==11" class="div-img"/>-->
-            <!--                <img src="../../../assets/js.png" height="20" width="20" v-else-if="currentItem.isDirectory==12" class="div-img"/>-->
-            <!--                <img src="../../../assets/vue.png" height="20" width="20" v-else-if="currentItem.isDirectory==13" class="div-img"/>-->
-            <!--                <img src="../../../assets/java.png" height="20" width="20" v-else-if="currentItem.isDirectory==14" class="div-img"/>-->
-            <!--                <span v-text="currentItem.name"></span>-->
             <el-row type="flex" justify="space-around" :gutter="30">
                 <el-col :span="2"></el-col>
                 <el-col :span="6"><p class="el-p">类型</p></el-col>
-                <el-col :span="16"><p class="el-p">文件夹</p></el-col>
+                <el-col :span="16"><p class="el-p" v-text="fileInfo.type"></p></el-col>
             </el-row>
             <el-row type="flex" justify="space-around" :gutter="30">
                 <el-col :span="2"></el-col>
                 <el-col :span="6"><p class="el-p">大小</p></el-col>
-                <el-col :span="16"><p class="el-p">1024</p></el-col>
+                <el-col :span="16"><p class="el-p" v-text="this.$options.filters.capacityFilter(this.fileInfo.size)  "></p></el-col>
             </el-row>
             <el-row type="flex" justify="space-around" :gutter="30">
                 <el-col :span="2"></el-col>
                 <el-col :span="6"><p class="el-p">创建时间</p></el-col>
-                <el-col :span="16"><p class="el-p">2020-10-10 18:00:00</p></el-col>
+                <el-col :span="16"><p class="el-p" v-text="fileInfo.ctime"></p></el-col>
             </el-row>
             <el-row type="flex" justify="space-around" :gutter="30">
                 <el-col :span="2"></el-col>
                 <el-col :span="6"><p class="el-p">修改时间</p></el-col>
-                <el-col :span="16"><p class="el-p">2020-10-10 18:00:00</p></el-col>
+                <el-col :span="16"><p class="el-p" v-text="fileInfo.mtime"></p></el-col>
             </el-row>
         </el-dialog>
 
@@ -133,7 +89,7 @@
         name: "FileManager",
         data() {
             return {
-                visible: false,
+                img: '../../../assets/blank.png',
                 baseURL: '',
                 path: _basePath,
                 capacity: {},//系统容量信息
@@ -146,6 +102,7 @@
                 fileInfoVisible: false,
                 fit: 'scale-down',
                 currentItem: {},
+                fileInfo:{},//文件详情
             }
         },
         created() {
@@ -246,13 +203,8 @@
                 this.fileInfoVisible = true;
                 let param = {path: this.currentItem.path};
                 showFileInfo(param).then((result) => {
-                    let data = result.data;
-                    console.log(data);
-                    // if (data.success == "true") {
-                    //     this.capacity = data.data;
-                    // } else {
-                    //     this.$message({type: 'error', message: '获取系统信息失败！'})
-                    // }
+                    this.fileInfo = result.data.data;
+
                 })
             },
             handleFileInfoClose() {
