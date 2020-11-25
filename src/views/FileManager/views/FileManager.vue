@@ -103,12 +103,18 @@
                 fit: 'scale-down',
                 currentItem: {},
                 fileInfo:{},//文件详情
+                channelId:'',
+                websocket:null,
             }
         },
         created() {
             this.pathArr.push(this.path);
             this.getCapacity();
             this.getFileList();
+            this.initWebSocket();
+        },
+        destroyed() {
+            this.websocket.close() //离开路由之后断开websocket连接
         },
         methods: {
             getCapacity() {
@@ -201,7 +207,7 @@
             //getFileInfo查看文件详细信息
             getFileInfo() {
                 this.fileInfoVisible = true;
-                let param = {path: this.currentItem.path};
+                let param = {path: this.currentItem.path,channelId:this.channelId};
                 showFileInfo(param).then((result) => {
                     this.fileInfo = result.data.data;
 
@@ -209,7 +215,41 @@
             },
             handleFileInfoClose() {
                 this.fileInfoVisible = false;
-            }
+            },
+            //********************************
+            initWebSocket(){ //初始化weosocket
+                this.websocket = new WebSocket("ws://"+_baseUrl+":"+_wsPort+"/getFileSize");
+                this.websocket.onmessage = this.websocketonmessage;
+                this.websocket.onopen = this.websocketonopen;
+                this.websocket.onerror = this.websocketonerror;
+                this.websocket.onclose = this.websocketclose;
+            },
+            websocketonopen(){ //连接建立之后执行send方法发送数据
+                 let param = {userId:"A0001"};
+                 this.websocketsend(param);
+
+            },
+            websocketonerror(){//连接建立失败重连
+
+                this.initWebSocket();
+            },
+            websocketonmessage(e){
+                let data = JSON.parse(e.data);
+                switch (data.action) {
+                    case 1://第一次连接或者重连
+                        this.channelId = data.chatMsg.msg;
+                        break;
+                }
+
+
+            },
+            websocketsend(data){//数据发送
+                let json  = JSON.stringify(data);
+                this.websocket.send(json);
+            },
+            websocketclose(e){  //关闭
+                console.log('断开连接',e);
+            },
         },
 
         watch: {

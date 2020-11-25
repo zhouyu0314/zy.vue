@@ -1,5 +1,7 @@
 
 global._basePath = '/F:/';
-global._baseUrl = 'http://localhost:8001';
+global._baseUrl = 'localhost';
+global._basePort = '8001';
+global._wsPort = '34123';
 
 

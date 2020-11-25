@@ -2,7 +2,7 @@ import request from '@/utils/request';
 
 export function showCapacity(data) {
     return request({
-        url: _baseUrl + '/api/file/showCapacity',
+        url:"http://"+ _baseUrl + ':' + _basePort + '/api/file/showCapacity',
         method: 'post',
         data,
     })
@@ -10,7 +10,7 @@ export function showCapacity(data) {
 
 export function showAllFile(data) {
     return request({
-        url: _baseUrl + '/api/file/showAllFile',
+        url: "http://"+_baseUrl + ':' + _basePort + '/api/file/showAllFile',
         method: 'post',
         data,
     })
@@ -18,7 +18,7 @@ export function showAllFile(data) {
 
 export function showFileInfo(data) {
     return request({
-        url: _baseUrl + '/api/file/showFileInfo',
+        url:"http://"+ _baseUrl + ':' + _basePort + '/api/file/showFileInfo',
         method: 'post',
         data,
     })
