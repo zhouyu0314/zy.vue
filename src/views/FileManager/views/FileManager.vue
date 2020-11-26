@@ -5,8 +5,8 @@
                 <el-progress :text-inside="true" :stroke-width="24" :percentage="capacity.percentage"
                              :status="this.$options.filters.statusFilter(this.capacity.percentage)"></el-progress>
             </el-col>
-            <el-col :span="4">当前系统总容量：{{capacity.allCapacity | capacityFilter}}</el-col>
-            <el-col :span="3">已用容量：{{capacity.allCapacity-capacity.useCapacity | capacityFilter}}</el-col>
+            <el-col :span="4">当前系统总容量：{{capacity.allCapacity}}</el-col>
+            <el-col :span="3">已用容量：{{capacity.useCapacity}}</el-col>
 
         </el-row>
         <el-divider content-position="left">
@@ -37,8 +37,8 @@
                 <li class="menu__item">打开</li>
                 <li class="menu__item_line"></li>
 
-                <li class="menu__item">下载</li>
-                <li class="menu__item_line"></li>
+                <li class="menu__item" @click="downLoadFile" v-if="this.currentItem.isDirectory=='directory'?false:true">下载</li>
+                <li class="menu__item_line" v-if="this.currentItem.isDirectory=='directory'?false:true"></li>
                 <li class="menu__item">复制</li>
                 <li class="menu__item_line"></li>
                 <li class="menu__item">剪切</li>
@@ -64,7 +64,7 @@
             <el-row type="flex" justify="space-around" :gutter="30">
                 <el-col :span="2"></el-col>
                 <el-col :span="6"><p class="el-p">大小</p></el-col>
-                <el-col :span="16"><p class="el-p" v-text="this.$options.filters.capacityFilter(this.fileInfo.size)  "></p></el-col>
+                <el-col :span="16"><p class="el-p" v-text="this.fileInfo.size"></p></el-col>
             </el-row>
             <el-row type="flex" justify="space-around" :gutter="30">
                 <el-col :span="2"></el-col>
@@ -77,6 +77,11 @@
                 <el-col :span="16"><p class="el-p" v-text="fileInfo.mtime"></p></el-col>
             </el-row>
         </el-dialog>
+
+        <!--由于360浏览器下载会根据文件的大小不停的向后端发请求，导致后端数据库连接池满载和java的oom，现使用form表单解决无限次请求的问题-->
+        <form id="form-for-360" method="post" :action="action" v-show="false">
+            <input type="text" name="fileName" :value="filename"></input>
+        </form>
 
     </div>
 </template>
@@ -105,6 +110,8 @@
                 fileInfo:{},//文件详情
                 channelId:'',
                 websocket:null,
+                filename:'',
+                action:"http://" + _baseUrl + ":" + _basePort + "/api/file/downLoad",
             }
         },
         created() {
@@ -173,6 +180,18 @@
                     this.getFileList();
                 }
             },
+            /*下载文件*/
+            downLoadFile() {
+                this.filename = this.currentItem.path;
+                        const a  = document.createElement('A');//创建a标签
+                        a.setAttribute('href','#');
+                        a.setAttribute('onclick',this.formDownload()+';return false;');
+                        a.click();
+
+            },
+            formDownload(){
+              document.getElementById("form-for-360").submit();
+            },
             //刷新
             handlerRefreshBtn() {
                 this.getFileList();
@@ -234,10 +253,16 @@
                 this.initWebSocket();
             },
             websocketonmessage(e){
+                console.log(e);
                 let data = JSON.parse(e.data);
+                console.log("data",data);
                 switch (data.action) {
                     case 1://第一次连接或者重连
                         this.channelId = data.chatMsg.msg;
+                        break;
+                    case 2:
+                        this.fileInfo.size = data.chatMsg.msg;
+                        console.log("this.fileInfo",this.fileInfo);
                         break;
                 }
 
